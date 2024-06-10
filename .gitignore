@@ -1,7 +1,8 @@
 # editor
 .idea/
 .vscode/
-
+frontend/buildSessionId
+frontend/sltoken.txt
 # misc
 .DS_Store
 
