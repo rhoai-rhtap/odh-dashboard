@@ -1,22 +1,11 @@
 import * as React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-
-import { Button, TextInput, ToolbarItem } from '@patternfly/react-core';
-
+import { TextInput, ToolbarItem } from '@patternfly/react-core';
+import { useParams } from 'react-router-dom';
 import PipelineFilterBar from '~/concepts/pipelines/content/tables/PipelineFilterBar';
-import { usePipelinesAPI } from '~/concepts/pipelines/context';
 import { FilterOptions } from '~/concepts/pipelines/content/tables/usePipelineFilter';
 import PipelineVersionSelect from '~/concepts/pipelines/content/pipelineSelector/CustomPipelineVersionSelect';
 import { PipelineRunVersionsContext } from '~/pages/pipelines/global/runs/PipelineRunVersionsContext';
-import { PipelineRunSearchParam } from '~/concepts/pipelines/content/types';
-import { PipelineRunType } from '~/pages/pipelines/global/runs';
-import { scheduleRunRoute } from '~/routes';
-import { SupportedArea, useIsAreaAvailable } from '~/concepts/areas';
-
-const options = {
-  [FilterOptions.NAME]: 'Schedule',
-  [FilterOptions.PIPELINE_VERSION]: 'Pipeline version',
-};
+import CreateScheduleButton from '~/pages/pipelines/global/runs/CreateScheduleButton';
 
 export type FilterProps = Pick<
   React.ComponentProps<typeof PipelineFilterBar>,
@@ -31,11 +20,16 @@ const PipelineRunJobTableToolbar: React.FC<PipelineRunJobTableToolbarProps> = ({
   dropdownActions,
   ...toolbarProps
 }) => {
-  const navigate = useNavigate();
-  const { experimentId } = useParams();
-  const { namespace } = usePipelinesAPI();
   const { versions } = React.useContext(PipelineRunVersionsContext);
-  const isExperimentsAvailable = useIsAreaAvailable(SupportedArea.PIPELINE_EXPERIMENTS).status;
+  const { pipelineVersionId } = useParams();
+
+  const options = {
+    [FilterOptions.NAME]: 'Schedule',
+    [FilterOptions.PIPELINE_VERSION]: 'Pipeline version',
+    ...(!pipelineVersionId && {
+      [FilterOptions.PIPELINE_VERSION]: 'Pipeline version',
+    }),
+  };
 
   return (
     <PipelineFilterBar<keyof typeof options>
@@ -60,21 +54,7 @@ const PipelineRunJobTableToolbar: React.FC<PipelineRunJobTableToolbarProps> = ({
       }}
     >
       <ToolbarItem>
-        <Button
-          data-testid="schedule-run-button"
-          variant="primary"
-          onClick={() =>
-            navigate({
-              pathname: scheduleRunRoute(
-                namespace,
-                isExperimentsAvailable ? experimentId : undefined,
-              ),
-              search: `?${PipelineRunSearchParam.RunType}=${PipelineRunType.Scheduled}`,
-            })
-          }
-        >
-          Schedule run
-        </Button>
+        <CreateScheduleButton />
       </ToolbarItem>
       <ToolbarItem data-testid="job-table-toolbar-item">{dropdownActions}</ToolbarItem>
     </PipelineFilterBar>

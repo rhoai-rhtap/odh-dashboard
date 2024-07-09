@@ -37,6 +37,7 @@ export type DashboardConfig = K8sResourceCommon & {
       disableModelMesh: boolean;
       disableAcceleratorProfiles: boolean;
       disablePipelineExperiments: boolean;
+      disableS3Endpoint: boolean;
       disableDistributedWorkloads: boolean;
       disableModelRegistry: boolean;
     };
@@ -147,6 +148,15 @@ export type K8sResourceCommon = {
   };
 } & K8sResourceBase;
 
+export type K8sResourceListResult<TResource extends K8sResourceCommon> = {
+  apiVersion: string;
+  items: TResource[];
+  metadata: {
+    resourceVersion: string;
+    continue: string;
+  };
+};
+
 /**
  * A status object when Kube backend can't handle a request.
  */
@@ -157,6 +167,16 @@ export type K8sStatus = {
   message: string;
   reason: string;
   status: string;
+};
+
+export type SecretKind = K8sResourceCommon & {
+  metadata: {
+    name: string;
+    namespace: string;
+  };
+  data?: Record<string, string>;
+  stringData?: Record<string, string>;
+  type?: string;
 };
 
 export enum BUILD_PHASE {
@@ -875,7 +895,20 @@ export type ContainerResources = {
   } & Record<string, unknown>;
 };
 
-export type ServingRuntime = K8sResourceCommon & {
+export type PodAffinity = {
+  nodeAffinity?: { [key: string]: unknown };
+};
+
+export type ServingContainer = {
+  name: string;
+  args?: string[];
+  image?: string;
+  affinity?: PodAffinity;
+  resources?: ContainerResources;
+  volumeMounts?: VolumeMount[];
+};
+
+export type ServingRuntimeKind = K8sResourceCommon & {
   metadata: {
     annotations?: DisplayNameAnnotations & ServingRuntimeAnnotations;
     name: string;
@@ -883,20 +916,15 @@ export type ServingRuntime = K8sResourceCommon & {
   };
   spec: {
     builtInAdapter?: {
-      serverType: string;
-      runtimeManagementPort: number;
+      serverType?: string;
+      runtimeManagementPort?: number;
       memBufferBytes?: number;
       modelLoadingTimeoutMillis?: number;
     };
-    containers: {
-      args: string[];
-      image: string;
-      name: string;
-      resources?: ContainerResources;
-      volumeMounts?: VolumeMount[];
-    }[];
-    supportedModelFormats: SupportedModelFormats[];
+    containers: ServingContainer[];
+    supportedModelFormats?: SupportedModelFormats[];
     replicas?: number;
+    tolerations?: Toleration[];
     volumes?: Volume[];
   };
 };
@@ -1014,9 +1042,83 @@ export type K8sCondition = {
   lastHeartbeatTime?: string;
 };
 
+export type DSPipelineExternalStorageKind = {
+  bucket: string;
+  host: string;
+  port?: '';
+  scheme: string;
+  region: string;
+  s3CredentialsSecret: {
+    accessKey: string;
+    secretKey: string;
+    secretName: string;
+  };
+};
+
 export type DSPipelineKind = K8sResourceCommon & {
+  metadata: {
+    name: string;
+    namespace: string;
+  };
   spec: {
     dspVersion: string;
+    apiServer?: Partial<{
+      apiServerImage: string;
+      artifactImage: string;
+      artifactScriptConfigMap: Partial<{
+        key: string;
+        name: string;
+      }>;
+      enableSamplePipeline: boolean;
+    }>;
+    database?: Partial<{
+      externalDB: Partial<{
+        host: string;
+        passwordSecret: Partial<{
+          key: string;
+          name: string;
+        }>;
+        pipelineDBName: string;
+        port: string;
+        username: string;
+      }>;
+      image: string;
+      mariaDB: Partial<{
+        image: string;
+        passwordSecret: Partial<{
+          key: string;
+          name: string;
+        }>;
+        pipelineDBName: string;
+        username: string;
+      }>;
+    }>;
+    mlpipelineUI?: {
+      configMap?: string;
+      image: string;
+    };
+    persistentAgent?: Partial<{
+      image: string;
+      pipelineAPIServerName: string;
+    }>;
+    scheduledWorkflow?: Partial<{
+      image: string;
+    }>;
+    objectStorage: Partial<{
+      externalStorage: DSPipelineExternalStorageKind;
+      minio: Partial<{
+        bucket: string;
+        image: string;
+        s3CredentialsSecret: Partial<{
+          accessKey: string;
+          secretKey: string;
+          secretName: string;
+        }>;
+      }>;
+    }>;
+    viewerCRD?: Partial<{
+      image: string;
+    }>;
   };
   status?: {
     conditions?: K8sCondition[];
@@ -1042,24 +1144,35 @@ export type ModelRegistryKind = K8sResourceCommon & {
       port: number;
       serviceRoute: string;
     };
-    mysql?: {
-      database: string;
-      host: string;
-      port?: number;
-    };
-    postgres: {
-      database: string;
-      host?: string;
-      passwordSecret?: {
-        key: string;
-        name: string;
+  } & EitherNotBoth<
+    {
+      mysql?: {
+        database: string;
+        host: string;
+        passwordSecret?: {
+          key: string;
+          name: string;
+        };
+        port?: number;
+        skipDBCreation?: boolean;
+        username?: string;
       };
-      port: number;
-      skipDBCreation?: boolean;
-      sslMode?: string;
-      username?: string;
-    };
-  };
+    },
+    {
+      postgres?: {
+        database: string;
+        host?: string;
+        passwordSecret?: {
+          key: string;
+          name: string;
+        };
+        port: number;
+        skipDBCreation?: boolean;
+        sslMode?: string;
+        username?: string;
+      };
+    }
+  >;
   status?: {
     conditions?: K8sCondition[];
   };

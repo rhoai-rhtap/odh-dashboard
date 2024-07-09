@@ -37,7 +37,7 @@ class TaskDrawer extends Contextual<HTMLElement> {
 
 class PipelinesTopology {
   visit(namespace: string, pipelineId: string, pipelineVersionId: string) {
-    cy.visit(`/pipelines/${namespace}/pipeline/view/${pipelineId}/${pipelineVersionId}`);
+    cy.visitWithLogin(`/pipelines/${namespace}/pipeline/view/${pipelineId}/${pipelineVersionId}`);
     this.wait();
   }
 
@@ -77,10 +77,20 @@ class PipelineRunRightDrawer extends Contextual<HTMLDivElement> {
 }
 
 class RunDetails extends PipelinesTopology {
-  findBottomDrawer() {
-    return new PipelineRunBottomDrawer(() =>
-      cy.findByTestId('pipeline-run-drawer-bottom').parent(),
-    );
+  findGraphTab() {
+    return cy.findByTestId('pipeline-run-tab-graph');
+  }
+
+  findDetailsTab() {
+    return cy.findByTestId('pipeline-run-tab-details');
+  }
+
+  findPipelineSpecTab() {
+    return cy.findByTestId('pipeline-run-tab-spec');
+  }
+
+  findDetailItem(key: string) {
+    return new DetailsItem(() => cy.findByTestId(`detail-item-${key}`));
   }
 
   findRightDrawer() {
@@ -98,7 +108,7 @@ class DetailsItem extends Contextual<HTMLElement> {
 
 class PipelineDetails extends PipelinesTopology {
   visit(namespace: string, pipelineId: string, pipelineVersionId: string) {
-    cy.visit(`/pipelines/${namespace}/pipeline/view/${pipelineId}/${pipelineVersionId}`);
+    cy.visitWithLogin(`/pipelines/${namespace}/pipeline/view/${pipelineId}/${pipelineVersionId}`);
     this.wait();
   }
 
@@ -171,7 +181,7 @@ class PipelineDetails extends PipelinesTopology {
 
 class PipelineRunJobDetails extends RunDetails {
   visit(namespace: string, pipelineId: string) {
-    cy.visit(`/pipelineRuns/${namespace}/pipelineRunJob/view/${pipelineId}`);
+    cy.visitWithLogin(`/pipelines/${namespace}/pipelineRunJob/view/${pipelineId}`);
     this.wait();
   }
 
@@ -186,7 +196,7 @@ class PipelineRunJobDetails extends RunDetails {
 
 class PipelineRunDetails extends RunDetails {
   visit(namespace: string, pipelineId: string) {
-    cy.visit(`/pipelineRuns/${namespace}/pipelineRun/view/${pipelineId}`);
+    cy.visitWithLogin(`/pipelines/${namespace}/pipelineRun/view/${pipelineId}`);
     this.wait();
   }
 
@@ -244,24 +254,6 @@ class PipelineRunDetails extends RunDetails {
 
   findOutputArtifacts() {
     return cy.findByTestId('Output-artifacts');
-  }
-}
-
-class PipelineRunBottomDrawer extends Contextual<HTMLDivElement> {
-  findBottomDrawerDetailsTab() {
-    return this.find().findByTestId('bottom-drawer-tab-details');
-  }
-
-  findBottomDrawerYamlTab() {
-    return this.find().findByTestId('bottom-drawer-tab-run-output');
-  }
-
-  findBottomDrawerInputTab() {
-    return this.find().findByTestId('bottom-drawer-tab-input-parameters');
-  }
-
-  findBottomDrawerDetailItem(key: string) {
-    return new DetailsItem(() => this.find().findByTestId(`detail-item-${key}`));
   }
 }
 

@@ -1,6 +1,11 @@
 /*
  * Common types, should be kept up to date with backend types
  */
+
+import {
+  WatchK8sResult,
+  K8sResourceCommon as SDKK8sResourceCommon,
+} from '@openshift/dynamic-plugin-sdk-utils';
 import { AxiosError } from 'axios';
 import { EnvironmentFromVariable } from '~/pages/projects/types';
 import { AcceleratorProfileKind, ImageStreamKind, ImageStreamSpecTagType } from './k8sTypes';
@@ -110,8 +115,6 @@ export type Secret = {
 export type ConfigMap = {
   data?: Record<string, string>;
 } & K8sResourceCommon;
-
-export type EnvVarResource = Secret | ConfigMap;
 
 export enum EnvVarResourceType {
   Secret = 'Secret',
@@ -331,18 +334,6 @@ export type PodContainer = {
   securityContext?: unknown;
 };
 
-export type PodContainerStatus = {
-  name?: string;
-  ready: boolean;
-  state?: {
-    running?: boolean | undefined;
-    waiting?: boolean | undefined;
-    terminated?: boolean | undefined;
-  };
-};
-
-export type PodContainerStatuses = (PodContainerStatus | undefined)[];
-
 export type PodAffinity = {
   nodeAffinity?: { [key: string]: unknown };
 };
@@ -383,13 +374,6 @@ export type NotebookRunningState = {
   podUID: string;
   notebookLink: string;
 };
-
-export type NotebookList = {
-  apiVersion?: string;
-  kind?: string;
-  metadata: Record<string, unknown>;
-  items: Notebook[];
-} & K8sResourceCommon;
 
 export type Route = {
   apiVersion?: string;
@@ -529,13 +513,6 @@ export type ImageStream = {
   status?: ImageStreamStatus;
 } & K8sResourceCommon;
 
-export type ImageStreamList = {
-  apiVersion?: string;
-  kind?: string;
-  metadata: Record<string, unknown>;
-  items: ImageStream[];
-} & K8sResourceCommon;
-
 export type NameVersionPair = {
   name: string;
   version: string;
@@ -567,27 +544,6 @@ export type ImageInfo = {
 
 export type ImageType = 'byon' | 'jupyter' | 'other';
 
-export type PersistentVolumeClaim = K8sResourceCommon & {
-  spec: {
-    accessModes: string[];
-    resources: {
-      requests: {
-        storage: string;
-      };
-    };
-    storageClassName?: string;
-    volumeMode: 'Filesystem' | 'Block';
-  };
-  status?: Record<string, any>; // eslint-disable-line
-};
-
-export type PersistentVolumeClaimList = {
-  apiVersion?: string;
-  kind?: string;
-  metadata: Record<string, unknown>;
-  items: PersistentVolumeClaim[];
-};
-
 export type Volume = {
   name: string;
   emptyDir?: Record<string, unknown>;
@@ -600,19 +556,6 @@ export type Volume = {
 };
 
 export type VolumeMount = { mountPath: string; name: string };
-
-/**
- * @deprecated -- use K8sStatus
- * Copy from partial of V1Status that will returned by the delete CoreV1Api
- */
-export type DeleteStatus = {
-  apiVersion?: string;
-  code?: number;
-  kind?: string;
-  message?: string;
-  reason?: string;
-  status?: string;
-};
 
 export type RoleBindingSubject = {
   kind: string;
@@ -631,10 +574,6 @@ export type ResourceGetter<T extends K8sResourceCommon> = (
 ) => Promise<T>;
 
 export type ResourceCreator<T extends K8sResourceCommon> = (resource: T) => Promise<T>;
-
-export type ResourceReplacer<T extends K8sResourceCommon> = (resource: T) => Promise<T>;
-
-export type ResourceDeleter = (projectName: string, resourceName: string) => Promise<DeleteStatus>;
 
 export type K8sEvent = {
   involvedObject: {
@@ -689,6 +628,13 @@ export type ImageStreamAndVersion = {
   imageVersion?: ImageStreamSpecTagType;
 };
 
+// This is the workaround to use K8sResourceCommon | K8sResourceCommon[] from SDK to work with utils.
+export type CustomWatchK8sResult<R extends SDKK8sResourceCommon | SDKK8sResourceCommon[]> = [
+  data: WatchK8sResult<R>[0],
+  loaded: WatchK8sResult<R>[1],
+  loadError: Error | undefined,
+];
+
 export type FetchStateObject<T, E = Error> = {
   data: T;
   loaded: boolean;
@@ -698,6 +644,7 @@ export type FetchStateObject<T, E = Error> = {
 
 // TODO this and useContextResourceData should probably be removed in favor of useMakeFetchObject
 export type ContextResourceData<T> = FetchStateObject<T[], Error | AxiosError>;
+export type PendingContextResourceData<T> = ContextResourceData<T> & { pending: boolean };
 
 export type BreadcrumbItemType = {
   label: string;

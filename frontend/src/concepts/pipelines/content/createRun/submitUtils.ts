@@ -15,13 +15,14 @@ import {
   PipelineVersionKFv2,
   RecurringRunMode,
   RuntimeConfigParameters,
+  StorageStateKF,
 } from '~/concepts/pipelines/kfTypes';
 import { PipelineAPIs } from '~/concepts/pipelines/types';
 import {
   getInputDefinitionParams,
   isFilledRunFormData,
 } from '~/concepts/pipelines/content/createRun/utils';
-import { convertPeriodicTimeToSeconds } from '~/utilities/time';
+import { convertPeriodicTimeToSeconds, convertToDate } from '~/utilities/time';
 
 const createRun = async (
   formData: SafeRunFormData,
@@ -46,12 +47,11 @@ const createRun = async (
   return createPipelineRun({}, data);
 };
 
-const convertDateDataToKFDateTime = (dateData?: RunDateTime): DateTimeKF | null => {
+export const convertDateDataToKFDateTime = (dateData?: RunDateTime): DateTimeKF | null => {
   if (!dateData) {
     return null;
   }
-
-  const date = new Date(`${dateData.date} ${dateData.time}`);
+  const date = convertToDate(dateData);
   return date.toISOString();
 };
 
@@ -97,7 +97,10 @@ const createJob = async (
           : undefined,
     },
     max_concurrency: String(formData.runType.data.maxConcurrency),
-    mode: RecurringRunMode.ENABLE,
+    mode:
+      formData.experiment?.storage_state === StorageStateKF.ARCHIVED
+        ? RecurringRunMode.DISABLE
+        : RecurringRunMode.ENABLE,
     no_catchup: !formData.runType.data.catchUp,
     service_account: '',
     experiment_id: formData.experiment?.experiment_id || '',

@@ -14,7 +14,6 @@ export * from './k8s/secrets';
 export * from './k8s/serviceAccounts';
 export * from './k8s/servingRuntimes';
 export * from './k8s/storageClasses';
-export * from './k8s/users';
 export * from './k8s/groups';
 export * from './k8s/templates';
 export * from './k8s/dashboardConfig';
@@ -35,9 +34,13 @@ export * from './pipelines/k8s';
 export * from './prometheus/pvcs';
 export * from './prometheus/serving';
 export * from './prometheus/distributedWorkloads';
+export * from './prometheus/kservePerformanceMetrics';
 
 // Network error handling
 export * from './errorUtils';
+
+// Models for use when constructing API objects
+export * from './models';
 
 // User access review hook
 export * from './useAccessReview';

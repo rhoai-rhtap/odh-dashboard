@@ -24,7 +24,6 @@ import {
   K8sAPIOptions,
   RoleBindingKind,
   ServingRuntimeKind,
-  DataScienceClusterKindStatus,
   InferenceServiceKind,
   ServiceAccountKind,
 } from '~/k8sTypes';
@@ -193,13 +192,13 @@ export const getInferenceServiceSizeOrReturnEmpty = (
   inferenceService?: InferenceServiceKind,
 ): ContainerResources | undefined => {
   if (
-    inferenceService?.spec.predictor.model.resources &&
+    inferenceService?.spec.predictor.model?.resources &&
     Object.keys(inferenceService.spec.predictor.model.resources).length === 0
   ) {
     return undefined;
   }
 
-  return inferenceService?.spec.predictor.model.resources;
+  return inferenceService?.spec.predictor.model?.resources;
 };
 
 export const getServingRuntimeOrReturnEmpty = (
@@ -293,15 +292,10 @@ export const isModelServerEditInfoChanged = (
         !_.isEqual(
           getServingRuntimeTokens(editInfo.secrets)
             .map((token) => token.name)
-            .sort(),
-          createData.tokens.map((token) => token.name).sort(),
+            .toSorted(),
+          createData.tokens.map((token) => token.name).toSorted(),
         ))
     : true;
-
-export const checkModelMeshFailureStatus = (status: DataScienceClusterKindStatus): string =>
-  status.conditions.find(
-    (condition) => condition.type === 'model-meshReady' && condition.status === 'False',
-  )?.message || '';
 
 export const isModelMesh = (inferenceService: InferenceServiceKind): boolean =>
   inferenceService.metadata.annotations?.['serving.kserve.io/deploymentMode'] === 'ModelMesh';

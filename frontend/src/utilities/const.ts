@@ -1,4 +1,9 @@
-import { ContextResourceData, FetchStateObject, OdhDocumentType } from '~/types';
+import {
+  ContextResourceData,
+  CustomWatchK8sResult,
+  FetchStateObject,
+  OdhDocumentType,
+} from '~/types';
 
 const WS_HOSTNAME = process.env.WS_HOSTNAME || location.host;
 const DEV_MODE = process.env.APP_ENV === 'development';
@@ -16,6 +21,7 @@ const { ODH_PRODUCT_NAME } = process.env;
 const { ODH_NOTEBOOK_REPO } = process.env;
 const DASHBOARD_CONFIG = process.env.DASHBOARD_CONFIG || 'odh-dashboard-config';
 const { EXT_CLUSTER } = process.env;
+const { INTERNAL_DASHBOARD_VERSION } = process.env;
 
 export {
   DEV_MODE,
@@ -32,6 +38,7 @@ export {
   DASHBOARD_CONFIG,
   WS_HOSTNAME,
   EXT_CLUSTER,
+  INTERNAL_DASHBOARD_VERSION,
 };
 
 export const DOC_TYPE_TOOLTIPS = {
@@ -49,6 +56,12 @@ export const DEFAULT_CONTEXT_DATA: ContextResourceData<never> = {
   refresh: () => undefined,
 };
 
+export const DEFAULT_LIST_WATCH_RESULT: CustomWatchK8sResult<never | never[]> = [
+  [],
+  false,
+  undefined,
+];
+
 export const DEFAULT_LIST_FETCH_STATE: FetchStateObject<never[]> = {
   data: [],
   loaded: false,
@@ -60,9 +73,6 @@ export const DEFAULT_VALUE_FETCH_STATE: FetchStateObject<never | undefined> = {
   loaded: false,
   refresh: () => undefined,
 };
-
-export const REPOSITORY_URL_REGEX =
-  /^([\w.\-_]+((?::\d+|)(?=\/[a-z0-9._-]+\/[a-z0-9._-]+))|)(?:\/|)([a-z0-9.\-_]+(?:\/[a-z0-9.\-_]+|))(?::([\w.\-_]{1,127})|)/;
 
 export const DASHBOARD_MAIN_CONTAINER_ID = 'dashboard-page-main';
 

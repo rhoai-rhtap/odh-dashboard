@@ -5,9 +5,8 @@ import {
   k8sListResource,
   K8sResourceCommon,
   k8sUpdateResource,
-  useK8sWatchResource,
-  WatchK8sResult,
 } from '@openshift/dynamic-plugin-sdk-utils';
+import { CustomWatchK8sResult } from '~/types';
 import { K8sAPIOptions, ProjectKind } from '~/k8sTypes';
 import { ProjectModel, ProjectRequestModel } from '~/api/models';
 import { throwErrorFromAxios } from '~/api/errorUtils';
@@ -17,10 +16,10 @@ import { LABEL_SELECTOR_DASHBOARD_RESOURCE, LABEL_SELECTOR_MODEL_SERVING_PROJECT
 import { NamespaceApplicationCase } from '~/pages/projects/types';
 import { applyK8sAPIOptions } from '~/api/apiMergeUtils';
 import { groupVersionKind } from '~/api/k8sUtils';
-import { listServingRuntimes } from './servingRuntimes';
+import useK8sWatchResourceList from '~/utilities/useK8sWatchResourceList';
 
-export const useProjects = (): WatchK8sResult<ProjectKind[]> =>
-  useK8sWatchResource<ProjectKind[]>(
+export const useProjects = (): CustomWatchK8sResult<ProjectKind[]> =>
+  useK8sWatchResourceList(
     {
       isList: true,
       groupVersionKind: groupVersionKind(ProjectModel),
@@ -94,22 +93,6 @@ export const createProject = (
 
 export const getModelServingProjects = (opts?: K8sAPIOptions): Promise<ProjectKind[]> =>
   getProjects(`${LABEL_SELECTOR_DASHBOARD_RESOURCE},${LABEL_SELECTOR_MODEL_SERVING_PROJECT}`, opts);
-
-const filter = async (arr: ProjectKind[], callback: (project: ProjectKind) => Promise<boolean>) => {
-  const fail = Symbol('fail');
-  const isProject = (i: ProjectKind | typeof fail): i is ProjectKind => i !== fail;
-  return (
-    await Promise.all(arr.map(async (item) => ((await callback(item)) ? item : fail)))
-  ).filter(isProject);
-};
-
-export const getModelServingProjectsAvailable = async (): Promise<ProjectKind[]> =>
-  getModelServingProjects().then((projects) =>
-    filter(projects, async (project: ProjectKind) => {
-      const projectServing = await listServingRuntimes(project.metadata.name);
-      return projectServing.length !== 0;
-    }),
-  );
 
 export const addSupportServingPlatformProject = (
   name: string,

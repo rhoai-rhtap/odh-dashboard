@@ -1,6 +1,6 @@
 import React from 'react';
 import { Label, Split, SplitItem } from '@patternfly/react-core';
-import { PipelineRunKFv2 } from '~/concepts/pipelines/kfTypes';
+import { PipelineRunKFv2, StorageStateKF } from '~/concepts/pipelines/kfTypes';
 import { computeRunStatus } from '~/concepts/pipelines/content/utils';
 import PipelineRunTypeLabel from '~/concepts/pipelines/content/PipelineRunTypeLabel';
 
@@ -15,7 +15,9 @@ const PipelineDetailsTitle: React.FC<RunJobTitleProps> = ({
   statusIcon,
   pipelineRunLabel,
 }) => {
-  const { icon, label } = computeRunStatus(run);
+  const { icon, label, color } = computeRunStatus(run);
+
+  const isArchived = run.storage_state === StorageStateKF.ARCHIVED;
 
   return (
     <>
@@ -28,7 +30,14 @@ const PipelineDetailsTitle: React.FC<RunJobTitleProps> = ({
         )}
         {statusIcon && (
           <SplitItem>
-            <Label icon={icon}>{label}</Label>
+            <Label color={color} icon={icon}>
+              {label}
+            </Label>
+          </SplitItem>
+        )}
+        {isArchived && (
+          <SplitItem>
+            <Label>Archived</Label>
           </SplitItem>
         )}
       </Split>

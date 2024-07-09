@@ -10,6 +10,7 @@ import {
   DescriptionListGroup,
   DescriptionListTerm,
   DescriptionListDescription,
+  StackItem,
 } from '@patternfly/react-core';
 
 import { Artifact } from '~/third_party/mlmd';
@@ -18,12 +19,15 @@ import { usePipelinesAPI } from '~/concepts/pipelines/context';
 import { getArtifactName } from '~/pages/pipelines/global/experiments/artifacts/utils';
 import PipelinesTableRowTime from '~/concepts/pipelines/content/tables/PipelinesTableRowTime';
 import PipelineRunDrawerRightContent from '~/concepts/pipelines/content/pipelinesDetails/pipelineRun/PipelineRunDrawerRightContent';
+import { SupportedArea, useIsAreaAvailable } from '~/concepts/areas';
+import { ArtifactUriLink } from '~/concepts/pipelines/content/artifacts/ArtifactUriLink';
+import ArtifactPreview from '~/concepts/pipelines/content/pipelinesDetails/taskDetails/ArtifactPreview';
 
 type ArtifactNodeDetailsProps = Pick<
   React.ComponentProps<typeof PipelineRunDrawerRightContent>,
   'upstreamTaskName'
 > & {
-  artifact: Artifact.AsObject;
+  artifact: Artifact;
 };
 
 export const ArtifactNodeDetails: React.FC<ArtifactNodeDetailsProps> = ({
@@ -31,7 +35,8 @@ export const ArtifactNodeDetails: React.FC<ArtifactNodeDetailsProps> = ({
   upstreamTaskName,
 }) => {
   const { namespace } = usePipelinesAPI();
-  const artifactName = getArtifactName(artifact);
+  const artifactName = getArtifactName(artifact.toObject());
+  const isExperimentsAvailable = useIsAreaAvailable(SupportedArea.PIPELINE_EXPERIMENTS).status;
 
   return (
     <Flex
@@ -53,15 +58,21 @@ export const ArtifactNodeDetails: React.FC<ArtifactNodeDetailsProps> = ({
 
               <DescriptionListTerm>Artifact name</DescriptionListTerm>
               <DescriptionListDescription>
-                <Link to={artifactsDetailsRoute(namespace, artifact.id)}>{artifactName}</Link>
+                {isExperimentsAvailable ? (
+                  <Link to={artifactsDetailsRoute(namespace, artifact.getId())}>
+                    {artifactName}
+                  </Link>
+                ) : (
+                  artifactName
+                )}
               </DescriptionListDescription>
 
               <DescriptionListTerm>Artifact type</DescriptionListTerm>
-              <DescriptionListDescription>{artifact.type}</DescriptionListDescription>
+              <DescriptionListDescription>{artifact.getType()}</DescriptionListDescription>
 
               <DescriptionListTerm>Created at</DescriptionListTerm>
               <DescriptionListDescription>
-                <PipelinesTableRowTime date={new Date(artifact.createTimeSinceEpoch)} />
+                <PipelinesTableRowTime date={new Date(artifact.getCreateTimeSinceEpoch())} />
               </DescriptionListDescription>
             </DescriptionListGroup>
           </DescriptionList>
@@ -78,7 +89,16 @@ export const ArtifactNodeDetails: React.FC<ArtifactNodeDetailsProps> = ({
           >
             <DescriptionListGroup>
               <DescriptionListTerm>{artifactName}</DescriptionListTerm>
-              <DescriptionListDescription>{artifact.uri}</DescriptionListDescription>
+              <DescriptionListDescription>
+                <Stack hasGutter>
+                  <StackItem>
+                    <ArtifactUriLink uri={artifact.getUri()} />
+                  </StackItem>
+                  <StackItem>
+                    <ArtifactPreview artifact={artifact} />
+                  </StackItem>
+                </Stack>
+              </DescriptionListDescription>
             </DescriptionListGroup>
           </DescriptionList>
         </Stack>

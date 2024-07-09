@@ -8,12 +8,14 @@ import RegisteredModelTableRow from './RegisteredModelTableRow';
 type RegisteredModelTableProps = {
   clearFilters: () => void;
   registeredModels: RegisteredModel[];
+  refresh: () => void;
 } & Partial<Pick<React.ComponentProps<typeof Table>, 'toolbarContent'>>;
 
 const RegisteredModelTable: React.FC<RegisteredModelTableProps> = ({
   clearFilters,
   registeredModels,
   toolbarContent,
+  refresh,
 }) => (
   <Table
     data-testid="registered-model-table"
@@ -22,7 +24,9 @@ const RegisteredModelTable: React.FC<RegisteredModelTableProps> = ({
     toolbarContent={toolbarContent}
     enablePagination
     emptyTableView={<DashboardEmptyTableView onClearFilters={clearFilters} />}
-    rowRenderer={(rm) => <RegisteredModelTableRow key={rm.name} registeredModel={rm} />}
+    rowRenderer={(rm) => (
+      <RegisteredModelTableRow key={rm.name} registeredModel={rm} refresh={refresh} />
+    )}
   />
 );
 

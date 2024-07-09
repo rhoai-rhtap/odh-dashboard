@@ -145,10 +145,32 @@ export const listPipelineRuns: ListPipelinesRunAPI = (hostPath) => (opts, params
     ),
   );
 
+const listPipelineRunsByVersion: ListPipelinesRunAPI = (hostPath) => (opts, params) => {
+  let predicates = params?.filter?.predicates ?? [];
+  if (params?.pipelineVersionId) {
+    predicates = [
+      ...predicates,
+      {
+        key: 'pipeline_version_id',
+        operation: PipelinesFilterOp.EQUALS,
+        // eslint-disable-next-line camelcase
+        string_value: params.pipelineVersionId,
+      },
+    ];
+  }
+
+  return listPipelineRuns(hostPath)(opts, {
+    ...params,
+    filter: {
+      predicates,
+    },
+  });
+};
+
 export const listPipelineActiveRuns: ListPipelinesRunAPI = (hostPath) => (opts, params) => {
   const filterPredicates = params?.filter?.predicates;
 
-  return listPipelineRuns(hostPath)(opts, {
+  return listPipelineRunsByVersion(hostPath)(opts, {
     ...params,
     filter: {
       predicates: [
@@ -167,7 +189,7 @@ export const listPipelineActiveRuns: ListPipelinesRunAPI = (hostPath) => (opts, 
 export const listPipelineArchivedRuns: ListPipelinesRunAPI = (hostPath) => (opts, params) => {
   const filterPredicates = params?.filter?.predicates;
 
-  return listPipelineRuns(hostPath)(opts, {
+  return listPipelineRunsByVersion(hostPath)(opts, {
     ...params,
     filter: {
       predicates: [
@@ -183,19 +205,33 @@ export const listPipelineArchivedRuns: ListPipelinesRunAPI = (hostPath) => (opts
   });
 };
 
-export const listPipelineRunJobs: ListPipelinesRunJobAPI = (hostPath) => (opts, params) =>
-  handlePipelineFailures(
+export const listPipelineRunJobs: ListPipelinesRunJobAPI = (hostPath) => (opts, params) => {
+  let predicates = params?.filter?.predicates ?? [];
+  if (params?.pipelineVersionId) {
+    predicates = [
+      ...predicates,
+      {
+        key: 'pipeline_version_id',
+        operation: PipelinesFilterOp.EQUALS,
+        // eslint-disable-next-line camelcase
+        string_value: params.pipelineVersionId,
+      },
+    ];
+  }
+
+  return handlePipelineFailures(
     proxyGET(
       hostPath,
       '/apis/v2beta1/recurringruns',
       {
-        ...pipelineParamsToQuery(params),
+        ...pipelineParamsToQuery({ ...params, filter: { predicates } }),
         // eslint-disable-next-line camelcase
         experiment_id: params?.experimentId,
       },
       opts,
     ),
   );
+};
 
 export const listPipelineVersions: ListPipelineVersionsAPI =
   (hostPath) => (opts, pipelineId, params) =>
@@ -234,6 +270,9 @@ export const stopPipelineRun: UpdatePipelineRunAPI = (hostPath) => (opts, runId)
   handlePipelineFailures(
     proxyENDPOINT(hostPath, `/apis/v2beta1/runs/${runId}:terminate`, {}, opts),
   );
+
+export const retryPipelineRun: UpdatePipelineRunAPI = (hostPath) => (opts, runId) =>
+  handlePipelineFailures(proxyENDPOINT(hostPath, `/apis/v2beta1/runs/${runId}:retry`, {}, opts));
 
 export const updatePipelineRunJob: UpdatePipelineRunJobAPI = (hostPath) => (opts, jobId, enabled) =>
   handlePipelineFailures(

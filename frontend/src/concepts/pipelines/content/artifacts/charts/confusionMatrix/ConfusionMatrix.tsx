@@ -1,27 +1,7 @@
 import React from 'react';
 import { Text } from '@patternfly/react-core';
 import './ConfusionMatrix.scss';
-
-export type ConfusionMatrixInput = {
-  annotationSpecs: {
-    displayName: string;
-  }[];
-  rows: { row: number[] }[];
-};
-
-export interface ConfusionMatrixConfig {
-  data: number[][];
-  labels: string[];
-}
-
-export function buildConfusionMatrixConfig(
-  confusionMatrix: ConfusionMatrixInput,
-): ConfusionMatrixConfig {
-  return {
-    labels: confusionMatrix.annotationSpecs.map((annotation) => annotation.displayName),
-    data: confusionMatrix.rows.map((x) => x.row),
-  };
-}
+import { ConfusionMatrixConfig } from './types';
 
 type ConfusionMatrixProps = {
   config: ConfusionMatrixConfig;

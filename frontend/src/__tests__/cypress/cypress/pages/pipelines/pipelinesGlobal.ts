@@ -3,7 +3,7 @@ import { Modal } from '~/__tests__/cypress/cypress/pages/components/Modal';
 
 class PipelinesGlobal {
   visit(projectName: string) {
-    cy.visit(`/pipelines/${projectName}`);
+    cy.visitWithLogin(`/pipelines/${projectName}`);
     this.wait();
   }
 
@@ -137,10 +137,6 @@ class ConfigurePipelineServerModal extends Modal {
 class ViewPipelineServerModal extends Modal {
   constructor() {
     super('View pipeline server');
-  }
-
-  findDoneButton() {
-    return this.find().findByTestId('view-pipeline-server-done-button');
   }
 
   shouldHaveAccessKey(value: string) {

@@ -8,12 +8,14 @@ import { mvColumns } from './ModelVersionsTableColumns';
 type ModelVersionsTableProps = {
   clearFilters: () => void;
   modelVersions: ModelVersion[];
+  refresh: () => void;
 } & Partial<Pick<React.ComponentProps<typeof Table>, 'toolbarContent'>>;
 
 const ModelVersionsTable: React.FC<ModelVersionsTableProps> = ({
   clearFilters,
   modelVersions,
   toolbarContent,
+  refresh,
 }) => (
   <Table
     data-testid="model-versions-table"
@@ -22,7 +24,9 @@ const ModelVersionsTable: React.FC<ModelVersionsTableProps> = ({
     toolbarContent={toolbarContent}
     enablePagination
     emptyTableView={<DashboardEmptyTableView onClearFilters={clearFilters} />}
-    rowRenderer={(mv) => <ModelVersionsTableRow key={mv.name} modelVersion={mv} />}
+    rowRenderer={(mv) => (
+      <ModelVersionsTableRow key={mv.name} modelVersion={mv} refresh={refresh} />
+    )}
   />
 );
 

@@ -30,9 +30,14 @@ export type PipelineParams = {
   sortDirection?: 'asc' | 'desc';
   filter?: PipelinesFilter;
 };
-export type PipelineRunParams = PipelineParams & { experimentId?: string };
+export type PipelineRunParams = PipelineParams & {
+  experimentId?: string;
+  pipelineVersionId?: string;
+};
 
-export type PipelineOptions = Omit<PipelineParams, 'pageToken'> & { page?: number };
+export type PipelineOptions = Omit<PipelineParams, 'pageToken'> & {
+  page?: number;
+};
 export type PipelineRunOptions = Omit<PipelineRunParams, 'pageToken'> & { page?: number };
 
 export type PipelineListPaged<T extends PipelineCoreResourceKFv2> = {
@@ -152,6 +157,7 @@ export type PipelineAPIs = {
   listPipelineRunJobs: ListPipelineRunJobs;
   listPipelineVersions: ListPipelineVersions;
   archivePipelineRun: UpdatePipelineRun;
+  retryPipelineRun: UpdatePipelineRun;
   unarchivePipelineRun: UpdatePipelineRun;
   archiveExperiment: UpdateExperiment;
   unarchiveExperiment: UpdateExperiment;

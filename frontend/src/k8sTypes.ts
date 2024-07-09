@@ -1,5 +1,5 @@
 import { K8sResourceCommon, MatchExpression } from '@openshift/dynamic-plugin-sdk-utils';
-import { EitherOrNone } from '@openshift/dynamic-plugin-sdk';
+import { EitherNotBoth, EitherOrNone } from '@openshift/dynamic-plugin-sdk';
 import { AwsKeys } from '~/pages/projects/dataConnections/const';
 import { StackComponent } from '~/concepts/areas/types';
 import {
@@ -344,11 +344,17 @@ export type PodKind = K8sResourceCommon & {
   status?: {
     phase: string;
     conditions: K8sCondition[];
-    containerStatuses?: {
-      name?: string;
-      ready: boolean;
-      state?: { running?: boolean; waiting?: boolean; terminated?: boolean };
-    }[];
+    containerStatuses?: PodContainerStatus[];
+  };
+};
+
+export type PodContainerStatus = {
+  name: string;
+  ready: boolean;
+  state?: {
+    running?: boolean | undefined;
+    waiting?: boolean | undefined;
+    terminated?: boolean | undefined;
   };
 };
 
@@ -366,10 +372,6 @@ export type ProjectKind = K8sResourceCommon & {
   };
 };
 
-export type DashboardProjectKind = ProjectKind & {
-  labels: DashboardLabels & Partial<ModelServingProjectLabels>;
-};
-
 export type ServiceAccountKind = K8sResourceCommon & {
   metadata: {
     annotations?: DisplayNameAnnotations;
@@ -382,9 +384,9 @@ export type ServiceAccountKind = K8sResourceCommon & {
 };
 
 export type ServingContainer = {
-  args: string[];
-  image: string;
   name: string;
+  args?: string[];
+  image?: string;
   affinity?: PodAffinity;
   resources?: ContainerResources;
   volumeMounts?: VolumeMount[];
@@ -398,13 +400,13 @@ export type ServingRuntimeKind = K8sResourceCommon & {
   };
   spec: {
     builtInAdapter?: {
-      serverType: string;
-      runtimeManagementPort: number;
+      serverType?: string;
+      runtimeManagementPort?: number;
       memBufferBytes?: number;
       modelLoadingTimeoutMillis?: number;
     };
     containers: ServingContainer[];
-    supportedModelFormats: SupportedModelFormats[];
+    supportedModelFormats?: SupportedModelFormats[];
     replicas?: number;
     tolerations?: Toleration[];
     volumes?: Volume[];
@@ -441,8 +443,8 @@ export type InferenceServiceKind = K8sResourceCommon & {
   spec: {
     predictor: {
       tolerations?: Toleration[];
-      model: {
-        modelFormat: {
+      model?: {
+        modelFormat?: {
           name: string;
           version?: string;
         };
@@ -450,9 +452,9 @@ export type InferenceServiceKind = K8sResourceCommon & {
         runtime?: string;
         storageUri?: string;
         storage?: {
-          key: string;
+          key?: string;
           parameters?: Record<string, string>;
-          path: string;
+          path?: string;
           schemaPath?: string;
         };
       };
@@ -461,33 +463,33 @@ export type InferenceServiceKind = K8sResourceCommon & {
     };
   };
   status?: {
-    components: {
+    components?: {
       predictor?: {
-        grpcUrl: string;
-        restUrl: string;
-        url: string;
+        grpcUrl?: string;
+        restUrl?: string;
+        url?: string;
       };
     };
-    conditions: {
-      lastTransitionTime: string;
+    conditions?: {
+      lastTransitionTime?: string;
       status: string;
       type: string;
     }[];
-    modelStatus: {
-      copies: {
-        failedCopies: number;
-        totalCopies: number;
+    modelStatus?: {
+      copies?: {
+        failedCopies?: number;
+        totalCopies?: number;
       };
       lastFailureInfo?: {
-        location: string;
-        message: string;
-        modelRevisionName: string;
-        reason: string;
-        time: string;
+        location?: string;
+        message?: string;
+        modelRevisionName?: string;
+        reason?: string;
+        time?: string;
       };
-      states: {
+      states?: {
         activeModelState: string;
-        targetModelState: string;
+        targetModelState?: string;
       };
       transitionStatus: string;
     };
@@ -1216,15 +1218,9 @@ export type DashboardCommonConfig = {
   disableAcceleratorProfiles: boolean;
   // TODO Temp feature flag - remove with https://issues.redhat.com/browse/RHOAIENG-3826
   disablePipelineExperiments: boolean;
+  disableS3Endpoint: boolean;
   disableDistributedWorkloads: boolean;
   disableModelRegistry: boolean;
-};
-
-export type OperatorStatus = {
-  /** Operator is installed and will be cloned to the namespace on creation */
-  available: boolean;
-  /** Has a detection gone underway or is the available a static default */
-  queriedForStatus: boolean;
 };
 
 export type DashboardConfigKind = K8sResourceCommon & {
@@ -1300,24 +1296,35 @@ export type ModelRegistryKind = K8sResourceCommon & {
       port: number;
       serviceRoute: string;
     };
-    mysql?: {
-      database: string;
-      host: string;
-      port?: number;
-    };
-    postgres: {
-      database: string;
-      host?: string;
-      passwordSecret?: {
-        key: string;
-        name: string;
+  } & EitherNotBoth<
+    {
+      mysql?: {
+        database: string;
+        host: string;
+        passwordSecret?: {
+          key: string;
+          name: string;
+        };
+        port?: number;
+        skipDBCreation?: boolean;
+        username?: string;
       };
-      port: number;
-      skipDBCreation?: boolean;
-      sslMode?: string;
-      username?: string;
-    };
-  };
+    },
+    {
+      postgres?: {
+        database: string;
+        host?: string;
+        passwordSecret?: {
+          key: string;
+          name: string;
+        };
+        port: number;
+        skipDBCreation?: boolean;
+        sslMode?: string;
+        username?: string;
+      };
+    }
+  >;
   status?: {
     conditions?: K8sCondition[];
   };

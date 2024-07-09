@@ -5,6 +5,7 @@ import {
   ModelRegistryMetadataType,
   ModelRegistryStringCustomProperties,
   ModelVersion,
+  ModelState,
   RegisteredModel,
 } from '~/concepts/modelRegistry/types';
 import { KeyValuePair } from '~/types';
@@ -135,3 +136,41 @@ export const filterModelVersions = (
         return true;
     }
   });
+
+export const filterRegisteredModels = (
+  unfilteredRegisteredModels: RegisteredModel[],
+  search: string,
+  searchType: SearchType,
+): RegisteredModel[] =>
+  unfilteredRegisteredModels.filter((rm: RegisteredModel) => {
+    if (!search) {
+      return true;
+    }
+
+    switch (searchType) {
+      case SearchType.KEYWORD:
+        return (
+          rm.name.toLowerCase().includes(search.toLowerCase()) ||
+          (rm.description && rm.description.toLowerCase().includes(search.toLowerCase()))
+        );
+
+      case SearchType.OWNER:
+        // TODO Implement owner search functionality once RHOAIENG-7566 is completed.
+        return;
+
+      default:
+        return true;
+    }
+  });
+
+export const filterArchiveVersions = (modelVersions: ModelVersion[]): ModelVersion[] =>
+  modelVersions.filter((mv) => mv.state === ModelState.ARCHIVED);
+
+export const filterLiveVersions = (modelVersions: ModelVersion[]): ModelVersion[] =>
+  modelVersions.filter((mv) => mv.state === ModelState.LIVE);
+
+export const filterArchiveModels = (registeredModels: RegisteredModel[]): RegisteredModel[] =>
+  registeredModels.filter((rm) => rm.state === ModelState.ARCHIVED);
+
+export const filterLiveModels = (registeredModels: RegisteredModel[]): RegisteredModel[] =>
+  registeredModels.filter((rm) => rm.state === ModelState.LIVE);

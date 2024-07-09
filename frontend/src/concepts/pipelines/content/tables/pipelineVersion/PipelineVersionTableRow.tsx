@@ -7,7 +7,12 @@ import { usePipelinesAPI } from '~/concepts/pipelines/context';
 import PipelinesTableRowTime from '~/concepts/pipelines/content/tables/PipelinesTableRowTime';
 import { PipelineRunType } from '~/pages/pipelines/global/runs/types';
 import { PipelineRunSearchParam } from '~/concepts/pipelines/content/types';
-import { routePipelineRunCreateNamespacePipelinesPage, routePipelineRunsNamespace } from '~/routes';
+import {
+  routePipelineRunCreateNamespacePipelinesPage,
+  routePipelineRunsNamespace,
+  routePipelineVersionRunsNamespace,
+} from '~/routes';
+import { SupportedArea, useIsAreaAvailable } from '~/concepts/areas';
 
 type PipelineVersionTableRowProps = {
   isChecked: boolean;
@@ -35,9 +40,10 @@ const PipelineVersionTableRow: React.FC<PipelineVersionTableRowProps> = ({
   const navigate = useNavigate();
   const { namespace } = usePipelinesAPI();
   const createdDate = new Date(version.created_at);
+  const isExperimentsAvailable = useIsAreaAvailable(SupportedArea.PIPELINE_EXPERIMENTS).status;
 
   return (
-    <Tr>
+    <Tr data-testid={`pipeline-version-row ${version.pipeline_version_id}`}>
       <CheckboxTd
         id={version.pipeline_version_id}
         isChecked={isChecked}
@@ -59,7 +65,6 @@ const PipelineVersionTableRow: React.FC<PipelineVersionTableRowProps> = ({
           }
           description={version.description}
           descriptionAsMarkdown
-          testId={`table-row-title-${version.display_name}`}
         />
       </Td>
       <Td>
@@ -77,12 +82,12 @@ const PipelineVersionTableRow: React.FC<PipelineVersionTableRowProps> = ({
               },
             },
             {
-              title: 'Schedule run',
+              title: 'Create schedule',
               onClick: () => {
                 navigate(
                   {
                     pathname: routePipelineRunCreateNamespacePipelinesPage(namespace),
-                    search: `?${PipelineRunSearchParam.RunType}=${PipelineRunType.Scheduled}`,
+                    search: `?${PipelineRunSearchParam.RunType}=${PipelineRunType.SCHEDULED}`,
                   },
                   {
                     state: { lastPipeline: pipeline, lastVersion: version },
@@ -98,8 +103,14 @@ const PipelineVersionTableRow: React.FC<PipelineVersionTableRowProps> = ({
               onClick: () => {
                 navigate(
                   {
-                    pathname: routePipelineRunsNamespace(namespace),
-                    search: `?${PipelineRunSearchParam.RunType}=${PipelineRunType.Active}`,
+                    pathname: isExperimentsAvailable
+                      ? routePipelineVersionRunsNamespace(
+                          namespace,
+                          pipeline.pipeline_id,
+                          version.pipeline_version_id,
+                        )
+                      : routePipelineRunsNamespace(namespace),
+                    search: `?${PipelineRunSearchParam.RunType}=${PipelineRunType.ACTIVE}`,
                   },
                   {
                     state: { lastVersion: version },
@@ -112,8 +123,14 @@ const PipelineVersionTableRow: React.FC<PipelineVersionTableRowProps> = ({
               onClick: () => {
                 navigate(
                   {
-                    pathname: routePipelineRunsNamespace(namespace),
-                    search: `?${PipelineRunSearchParam.RunType}=${PipelineRunType.Scheduled}`,
+                    pathname: isExperimentsAvailable
+                      ? routePipelineVersionRunsNamespace(
+                          namespace,
+                          pipeline.pipeline_id,
+                          version.pipeline_version_id,
+                        )
+                      : routePipelineRunsNamespace(namespace),
+                    search: `?${PipelineRunSearchParam.RunType}=${PipelineRunType.SCHEDULED}`,
                   },
                   {
                     state: { lastVersion: version },
