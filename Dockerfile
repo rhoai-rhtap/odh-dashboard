@@ -1,29 +1,26 @@
 # Build arguments
 ARG SOURCE_CODE=.
 
-# Use ubi8/nodejs-18 as default base image
-ARG BASE_IMAGE="registry.access.redhat.com/ubi8/nodejs-18:latest"
+# First stage: builder
+FROM registry.access.redhat.com/ubi8/nodejs-18:latest AS builder
 
-FROM ${BASE_IMAGE} as builder
-
-## Build args to be used at this step
+# Build args to be used at this step
 ARG SOURCE_CODE
 
 WORKDIR /usr/src/app
 
-## Copying in source code
+# Copying in source code
 COPY --chown=default:root ${SOURCE_CODE} /usr/src/app
 
 # Change file ownership to the assemble user
 USER default
 
 RUN npm cache clean --force
-
 RUN npm ci --omit=optional
-
 RUN npm run build
 
-FROM ${BASE_IMAGE} as runtime
+# Second stage: runtime
+FROM registry.access.redhat.com/ubi8/nodejs-18:latest AS runtime
 
 WORKDIR /usr/src/app
 
@@ -41,12 +38,10 @@ COPY --chown=default:root --from=builder /usr/src/app/data /usr/src/app/data
 COPY --chown=default:root --from=builder /usr/src/app/frontend/sltoken.txt /usr/src/app/frontend/sltoken.txt
 
 WORKDIR /usr/src/app/frontend
-RUN npm install --loglevel=error slnodejs@6.1.724 
+RUN npm install --loglevel=error slnodejs@6.1.724
 
-
-
-RUN npx slnodejs config --tokenfile ./sltoken.txt --appname "odh-dashboard-frontend" --branch "poc-local" --build  `date +"%y%m%d_%H%M"`
-RUN npx slnodejs scan --tokenfile ./sltoken.txt --buildsessionidfile buildSessionId --instrumentForBrowsers  --workspacepath ./public --outputpath /usr/src/app/frontend/sl_public --scm none
+RUN npx slnodejs config --tokenfile ./sltoken.txt --appname "odh-dashboard-frontend" --branch "poc-local" --build $(date +"%y%m%d_%H%M")
+RUN npx slnodejs scan --tokenfile ./sltoken.txt --buildsessionidfile buildSessionId --instrumentForBrowsers --workspacepath ./public --outputpath /usr/src/app/frontend/sl_public --scm none
 RUN rm -rf ./public
 RUN ls
 
