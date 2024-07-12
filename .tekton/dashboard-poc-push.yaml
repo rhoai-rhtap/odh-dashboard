@@ -28,7 +28,7 @@ spec:
   - name: path-context
     value: .
   - name: prefetch-input
-    value: '{"type": "npm", "path": "."}' 
+    value: [{"type": "npm", "path": "."}, {"type": "npm", "path": "frontend"}, {"type": "npm", "path": "backend"}]  
   pipelineSpec:
     finally:
     - name: show-sbom
