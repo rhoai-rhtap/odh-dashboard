@@ -4,7 +4,9 @@ ARG SOURCE_CODE=.
 # Use ubi8/nodejs-18 as default base image
 ARG BASE_IMAGE="registry.access.redhat.com/ubi8/nodejs-18:latest"
 
-FROM ${BASE_IMAGE} as builder
+# FROM ${BASE_IMAGE} as builder
+
+FROM registry.access.redhat.com/ubi8/nodejs-18:latest as builder
 
 ## Build args to be used at this step
 ARG SOURCE_CODE
