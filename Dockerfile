@@ -38,6 +38,9 @@ COPY --chown=default:root --from=builder /usr/src/app/data /usr/src/app/data
 COPY --chown=default:root --from=builder /usr/src/app/frontend/sltoken.txt /usr/src/app/frontend/sltoken.txt
 
 WORKDIR /usr/src/app/frontend
+
+ENV CYPRESS_INSTALL_BINARY=0
+
 RUN npm install --loglevel=error slnodejs@6.1.724
 
 RUN npx slnodejs config --tokenfile ./sltoken.txt --appname "odh-dashboard-frontend" --branch "poc-local" --build $(date +"%y%m%d_%H%M")
