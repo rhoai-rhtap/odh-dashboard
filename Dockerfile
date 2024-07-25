@@ -32,6 +32,8 @@ RUN mkdir /usr/src/app/logs && chmod 775 /usr/src/app/logs
 USER default
 
 COPY --chown=default:root --from=builder /usr/src/app/frontend/public /usr/src/app/frontend/public
+COPY --chown=default:root --from=builder /usr/src/app/frontend/package.json /usr/src/app/frontend/package.json
+COPY --chown=default:root --from=builder /usr/src/app/frontend/package-lock.json /usr/src/app/frontend/package-lock.json
 COPY --chown=default:root --from=builder /usr/src/app/backend/package.json /usr/src/app/backend/package.json
 COPY --chown=default:root --from=builder /usr/src/app/backend/package-lock.json /usr/src/app/backend/package-lock.json
 COPY --chown=default:root --from=builder /usr/src/app/backend/dist /usr/src/app/backend/dist
@@ -39,14 +41,16 @@ COPY --chown=default:root --from=builder /usr/src/app/.npmrc /usr/src/app/backen
 COPY --chown=default:root --from=builder /usr/src/app/.env /usr/src/app/.env
 COPY --chown=default:root --from=builder /usr/src/app/data /usr/src/app/data
 COPY --chown=default:root --from=builder /usr/src/app/frontend/sltoken.txt /usr/src/app/frontend/sltoken.txt
+COPY --chown=default:root --from=builder /usr/src/app/frontend/.slignore.generated /usr/src/app/frontend/.slignore.generated
+RUN cd frontend && npm cache clean --force && npm ci --omit=dev --omit=optional && chmod -R g+w ${HOME}/.npm
+
 
 WORKDIR /usr/src/app/frontend
-RUN npm install --loglevel=error slnodejs@6.1.724 
 
 
+RUN npm slnodejs config --tokenfile ./sltoken.txt --appname "odh-dashboard-frontend-sealight" --branch "poc-local" --build  `date +"%y%m%d_%H%M"`
+RUN npm slnodejs scan --tokenfile ./sltoken.txt --buildsessionidfile buildSessionId --labid openshift-ai-testcluster --instrumentForBrowsers  --workspacepath ./public --outputpath /usr/src/app/frontend/sl_public --scm none
 
-RUN npx slnodejs config --tokenfile ./sltoken.txt --appname "odh-dashboard-frontend" --branch "poc-local" --build  `date +"%y%m%d_%H%M"`
-RUN npx slnodejs scan --tokenfile ./sltoken.txt --buildsessionidfile buildSessionId --instrumentForBrowsers  --workspacepath ./public --outputpath /usr/src/app/frontend/sl_public --scm none
 RUN rm -rf ./public
 RUN ls
 
