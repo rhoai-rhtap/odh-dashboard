@@ -32,6 +32,7 @@ RUN mkdir /usr/src/app/logs && chmod 775 /usr/src/app/logs
 USER default
 
 COPY --chown=default:root --from=builder /usr/src/app/frontend/public /usr/src/app/frontend/public
+COPY --chown=default:root --from=builder /usr/src/app/frontend/node_modules /usr/src/app/frontend/node_modules
 COPY --chown=default:root --from=builder /usr/src/app/backend/package.json /usr/src/app/backend/package.json
 COPY --chown=default:root --from=builder /usr/src/app/backend/package-lock.json /usr/src/app/backend/package-lock.json
 COPY --chown=default:root --from=builder /usr/src/app/backend/dist /usr/src/app/backend/dist
@@ -39,15 +40,17 @@ COPY --chown=default:root --from=builder /usr/src/app/.npmrc /usr/src/app/backen
 COPY --chown=default:root --from=builder /usr/src/app/.env /usr/src/app/.env
 COPY --chown=default:root --from=builder /usr/src/app/data /usr/src/app/data
 COPY --chown=default:root --from=builder /usr/src/app/frontend/sltoken.txt /usr/src/app/frontend/sltoken.txt
+COPY --chown=default:root --from=builder /usr/src/app/frontend/.slignore.generated /usr/src/app/frontend/.slignore.generated
+
+
 
 WORKDIR /usr/src/app/frontend
-RUN npm install --loglevel=error slnodejs@6.1.724 
 
 
+RUN node_modules/.bin/slnodejs config --tokenfile ./sltoken.txt --appname "odh-dashboard-frontend-sealight" --branch "poc-local" --build  `date +"%y%m%d_%H%M"`
+RUN node_modules/.bin/slnodejs scan --tokenfile ./sltoken.txt --buildsessionidfile buildSessionId --labid openshift-ai-testcluster --instrumentForBrowsers  --workspacepath ./public --outputpath /usr/src/app/frontend/sl_public --scm none
 
-RUN npx slnodejs config --tokenfile ./sltoken.txt --appname "odh-dashboard-frontend" --branch "poc-local" --build  `date +"%y%m%d_%H%M"`
-RUN npx slnodejs scan --tokenfile ./sltoken.txt --buildsessionidfile buildSessionId --instrumentForBrowsers  --workspacepath ./public --outputpath /usr/src/app/frontend/sl_public --scm none
-RUN rm -rf ./public
+RUN rm -rf ./public ./node_modules
 RUN ls
 
 RUN mkdir /usr/src/app/frontend/public
