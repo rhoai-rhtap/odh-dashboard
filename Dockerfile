@@ -48,9 +48,28 @@ RUN ls
 RUN mkdir /usr/src/app/frontend/public
 RUN mv /usr/src/app/frontend/sl_public/* /usr/src/app/frontend/public/
 
-WORKDIR /usr/src/app
+# WORKDIR /usr/src/app
 
-RUN cd backend && npm cache clean --force && npm ci --omit=dev --omit=optional && chmod -R g+w ${HOME}/.npm
+# RUN cd backend && npm cache clean --force && npm ci --omit=dev --omit=optional && chmod -R g+w ${HOME}/.npm
+
+WORKDIR /usr/src/app/backend
+
+# Copy package files
+COPY backend/package*.json ./
+
+# Clean npm cache
+RUN npm cache clean --force
+
+# Install dependencies with detailed logging
+RUN npm ci --omit=dev --omit=optional
+
+# Set permissions for the .npm directory
+RUN chmod -R g+w ${HOME}/.npm
+
+# Continue with other steps, such as copying application code
+WORKDIR /usr/src/app
+COPY . .
+
 
 WORKDIR /usr/src/app/backend
 
