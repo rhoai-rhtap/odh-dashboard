@@ -54,6 +54,8 @@ RUN mv /usr/src/app/frontend/sl_public/* /usr/src/app/frontend/public/
 
 WORKDIR /usr/src/app/backend
 
+ENV CYPRESS_INSTALL_BINARY=0
+
 # Copy package files
 COPY backend/package*.json ./
 
