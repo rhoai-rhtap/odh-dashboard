@@ -25,7 +25,9 @@ RUN npm ci --omit=optional
 
 RUN npm run build
 
-FROM ${BASE_IMAGE} as runtime
+# FROM ${BASE_IMAGE} as runtime
+
+FROM registry.access.redhat.com/ubi8/nodejs-18:latest as runtime
 
 WORKDIR /usr/src/app
 
