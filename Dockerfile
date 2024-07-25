@@ -16,9 +16,7 @@ COPY --chown=default:root ${SOURCE_CODE} /usr/src/app
 USER default
 
 RUN npm cache clean --force
-# RUN npm ci --omit=optional
-
-RUN npm install --omit=dev
+RUN npm ci --omit=optional
 
 RUN npm run build
 
