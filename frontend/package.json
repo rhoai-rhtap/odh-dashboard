@@ -89,7 +89,7 @@
     "redux-thunk": "^2.4.1",
     "sass": "^1.56.2",
     "showdown": "^2.1.0",
-    "slnodejs": "^6.1.724",
+    "slnodejs": "^6.1.910",
     "yaml": "^2.2.2"
   },
   "devDependencies": {
