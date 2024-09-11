@@ -23,7 +23,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/rhoai/odh-dashboard:{{revision}}
+    value: quay.io/redhat-user-workloads/rhoai-tenant/rhoai-v2-13/odh-dashboard-v2-13:on-pr-{{revision}}
   - name: image-expires-after
     value: 5d
   - name: dockerfile
