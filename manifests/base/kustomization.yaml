@@ -26,4 +26,4 @@ images:
     newTag: main
   - name: oauth-proxy
     newName: registry.redhat.io/openshift4/ose-oauth-proxy
-    digest: sha256:ab112105ac37352a2a4916a39d6736f5db6ab4c29bad4467de8d613e80e9bb33
+    digest: sha256:4387d0fdb0e8ac72b7d95525e22109b5a95effa1845b7f38113750c071a84253
