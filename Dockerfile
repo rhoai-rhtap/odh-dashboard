@@ -3,7 +3,7 @@ ARG SOURCE_CODE=.
 ARG CI_CONTAINER_VERSION="unknown"
 
 # Use ubi8/nodejs-18 as default base image
-ARG BASE_IMAGE="registry.access.redhat.com/ubi8/nodejs-18:latest"
+#ARG BASE_IMAGE="registry.access.redhat.com/ubi8/nodejs-18:latest"
 
 # FROM ${BASE_IMAGE} as builder
 
