@@ -1,5 +1,6 @@
 # Build arguments
 ARG SOURCE_CODE=.
+ARG CI_CONTAINER_VERSION="unknown"
 
 # Use ubi8/nodejs-18 as default base image
 ARG BASE_IMAGE="registry.access.redhat.com/ubi8/nodejs-18:latest"
@@ -23,11 +24,22 @@ RUN npm cache clean --force
 
 RUN npm ci --omit=optional
 
+# Set Red Hat Openshift AI logo and links
+ENV ODH_LOGO=../images/rhoai-logo.svg
+ENV ODH_PRODUCT_NAME="Red Hat OpenShift AI"
+ENV ODH_FAVICON="rhoai-favicon.svg"
+ENV DOC_LINK="https://docs.redhat.com/en/documentation/red_hat_openshift_ai/"
+ENV SUPPORT_LINK="https://access.redhat.com/support/cases/#/case/new/open-case?caseCreate=true"
+ENV COMMUNITY_LINK=""
+
+
 RUN npm run build
 
 # FROM ${BASE_IMAGE} as runtime
 
 FROM registry.access.redhat.com/ubi8/nodejs-18:latest as runtime
+
+ARG CI_CONTAINER_VERSION
 
 WORKDIR /usr/src/app
 
@@ -49,8 +61,14 @@ WORKDIR /usr/src/app/backend
 
 CMD ["npm", "run", "start"]
 
-LABEL io.opendatahub.component="odh-dashboard" \
-      io.k8s.display-name="odh-dashboard" \
-      name="open-data-hub/odh-dashboard-ubi8" \
+LABEL com.redhat.component="odh-dashboard-container" \
+      name="managed-open-data-hub/odh-dashboard-rhel8" \
+      version="${CI_CONTAINER_VERSION}" \
+      git.url="${CI_ODH_DASHBOARD_UPSTREAM_URL}" \
+      git.commit="${CI_ODH_DASHBOARD_UPSTREAM_COMMIT}" \
       summary="odh-dashboard" \
-      description="Open Data Hub Dashboard"
+      io.openshift.expose-services="" \
+      io.k8s.display-name="odh-dashboard" \
+      maintainer="['managed-open-data-hub@redhat.com']" \
+      description="odh-dashboard" \
+      com.redhat.license_terms="https://www.redhat.com/licenses/Red_Hat_Standard_EULA_20191108.pdf"
