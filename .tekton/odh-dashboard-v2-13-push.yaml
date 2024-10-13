@@ -230,6 +230,11 @@ spec:
         - $(params.build-args[*])
       - name: BUILD_ARGS_FILE
         value: $(params.build-args-file)
+      - name: LABELS
+        value:
+          - version=v2.13.0
+          - git.url=$(params.git-url)
+          - git.commit=$(params.revision)
       runAfter:
       - prefetch-dependencies
       taskRef:
@@ -237,7 +242,7 @@ spec:
         - name: name
           value: buildah
         - name: bundle
-          value: quay.io/konflux-ci/tekton-catalog/task-buildah:0.2@sha256:a523f60203d90e149f96ec776b47ce85a7acfd6d634ddfc18f4a03f14e08ea0e
+          value: quay.io/konflux-ci/tekton-catalog/task-buildah:0.2@sha256:2d6e09f356059ccfd8aada165d5b020e1eb025aeac4717a1ea2de239bed2a0d7
         - name: kind
           value: task
         resolver: bundles
