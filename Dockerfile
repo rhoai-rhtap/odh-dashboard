@@ -1,13 +1,7 @@
 # Build arguments
 ARG SOURCE_CODE=.
-ARG CI_CONTAINER_VERSION="unknown"
 
-# Use ubi8/nodejs-18 as default base image
-#ARG BASE_IMAGE="registry.access.redhat.com/ubi8/nodejs-18:latest"
-
-# FROM ${BASE_IMAGE} as builder
-
-FROM registry.access.redhat.com/ubi8/nodejs-18:latest as builder
+FROM registry.access.redhat.com/ubi8/nodejs-18@sha256:ac580d58c972503a7e61202d7e9354254c3b3f6ff0e7fdfce7b8db911ab8d1ad as builder
 
 ## Build args to be used at this step
 ARG SOURCE_CODE
@@ -32,14 +26,9 @@ ENV DOC_LINK="https://docs.redhat.com/en/documentation/red_hat_openshift_ai/"
 ENV SUPPORT_LINK="https://access.redhat.com/support/cases/#/case/new/open-case?caseCreate=true"
 ENV COMMUNITY_LINK=""
 
-
 RUN npm run build
 
-# FROM ${BASE_IMAGE} as runtime
-
-FROM registry.access.redhat.com/ubi8/nodejs-18:latest as runtime
-
-ARG CI_CONTAINER_VERSION
+FROM registry.access.redhat.com/ubi8/nodejs-18@sha256:ac580d58c972503a7e61202d7e9354254c3b3f6ff0e7fdfce7b8db911ab8d1ad as runtime
 
 WORKDIR /usr/src/app
 
@@ -63,12 +52,10 @@ CMD ["npm", "run", "start"]
 
 LABEL com.redhat.component="odh-dashboard-container" \
       name="managed-open-data-hub/odh-dashboard-rhel8" \
-      version="${CI_CONTAINER_VERSION}" \
-      git.url="${CI_ODH_DASHBOARD_UPSTREAM_URL}" \
-      git.commit="${CI_ODH_DASHBOARD_UPSTREAM_COMMIT}" \
+      description="odh-dashboard" \
       summary="odh-dashboard" \
+      maintainer="['managed-open-data-hub@redhat.com']" \
       io.openshift.expose-services="" \
       io.k8s.display-name="odh-dashboard" \
-      maintainer="['managed-open-data-hub@redhat.com']" \
-      description="odh-dashboard" \
+      io.k8s.description="odh-dashboard" \
       com.redhat.license_terms="https://www.redhat.com/licenses/Red_Hat_Standard_EULA_20191108.pdf"
