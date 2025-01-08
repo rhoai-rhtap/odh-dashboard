@@ -1,5 +1,6 @@
 # Build arguments
-#ARG SOURCE_CODE=.
+ARG SOURCE_CODE=.
+#rhoai-2.13-1
 
 FROM registry.access.redhat.com/ubi8/nodejs-18@sha256:ac580d58c972503a7e61202d7e9354254c3b3f6ff0e7fdfce7b8db911ab8d1ad as builder
 
@@ -34,7 +35,9 @@ WORKDIR /usr/src/app
 
 RUN mkdir /usr/src/app/logs && chmod 775 /usr/src/app/logs
 
-USER default
+#USER default
+
+USER 1001:0
 
 COPY --chown=default:root --from=builder /usr/src/app/frontend/public /usr/src/app/frontend/public
 COPY --chown=default:root --from=builder /usr/src/app/backend/package.json /usr/src/app/backend/package.json
