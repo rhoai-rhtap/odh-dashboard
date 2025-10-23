@@ -67,7 +67,7 @@
     "pino-pretty": "^9.4.0",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
-    "ts-protoc-gen": "^0.10.0",
+    "ts-protoc-gen": "^0.15.0",
     "tslib": "^2.0.3",
     "typescript": "^5.3.3"
   },
