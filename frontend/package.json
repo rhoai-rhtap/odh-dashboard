@@ -53,7 +53,7 @@
   },
   "dependencies": {
     "@openshift/dynamic-plugin-sdk": "^4.0.0",
-    "@openshift/dynamic-plugin-sdk-utils": "^4.0.1",
+    "@openshift/dynamic-plugin-sdk-utils": "^5.0.0",
     "@patternfly/patternfly": "^5.2.1",
     "@patternfly/quickstarts": "^5.1.0",
     "@patternfly/react-catalog-view-extension": "^5.0.0",
