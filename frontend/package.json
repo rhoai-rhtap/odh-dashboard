@@ -74,7 +74,7 @@
     "compare-versions": "^3.6.0",
     "dompurify": "^2.2.6",
     "google-protobuf": "^3.11.2",
-    "grpc-web": "^1.2.1",
+    "grpc-web": "^2.0.0",
     "lodash-es": "^4.17.15",
     "monaco-editor": "^0.31.1",
     "monaco-editor-webpack-plugin": "^7.0.1",
