@@ -146,7 +146,7 @@
     "tslib": "^2.5.0",
     "typescript": "^5.3.3",
     "url-loader": "^4.1.1",
-    "victory-core": "^36.8.3",
+    "victory-core": "^37.0.0",
     "wait-on": "^7.2.0",
     "webpack": "^5.76.0",
     "webpack-bundle-analyzer": "^4.7.0",
