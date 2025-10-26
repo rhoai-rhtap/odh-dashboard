@@ -85,6 +85,6 @@
     "ts-jest": "^29.1.1"
   },
   "overrides": {
-    "tough-cookie": "^4.1.3"
+    "tough-cookie": "^6.0.0"
   }
 }
