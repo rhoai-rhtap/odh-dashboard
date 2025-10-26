@@ -148,7 +148,7 @@
     "prettier": "^2.1.2",
     "raw-loader": "^4.0.2",
     "regenerator-runtime": "^0.13.7",
-    "rimraf": "^3.0.2",
+    "rimraf": "^6.0.0",
     "sass-loader": "^13.2.0",
     "serve": "^14.2.1",
     "style-loader": "^2.0.0",
