@@ -137,7 +137,7 @@
     "raw-loader": "^4.0.2",
     "regenerator-runtime": "^0.13.7",
     "rimraf": "^3.0.2",
-    "sass-loader": "^13.2.0",
+    "sass-loader": "^16.0.0",
     "serve": "^14.2.1",
     "style-loader": "^2.0.0",
     "svg-url-loader": "^6.0.0",
