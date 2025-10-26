@@ -86,7 +86,7 @@
     "react-router": "^6.4.1",
     "react-router-dom": "^6.4.1",
     "redux": "^4.2.0",
-    "redux-thunk": "^2.4.1",
+    "redux-thunk": "^3.0.0",
     "sass": "^1.56.2",
     "showdown": "^2.1.0",
     "slnodejs": "^6.1.910",
