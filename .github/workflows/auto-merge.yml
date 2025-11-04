@@ -1,0 +1,33 @@
+name: Auto Add to Merge Queue
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  auto_add_to_queue:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.draft == false && github.event.pull_request.state == 'open' }}
+    permissions:
+      contents: read
+      pull-requests: write
+      statuses: read
+
+    steps:
+      - name: Wait for commit statuses
+        id: wait_for_status
+        uses: fountainhead/action-wait-for-check@v1.2.0
+        with:
+          checkName: "Scan Files"
+          ref: ${{ github.event.pull_request.head.sha }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add to Merge Queue
+        if: ${{ steps.wait_for_status.outputs.conclusion == 'success' }}
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          PR_NUMBER='${{ github.event.pull_request.number }}'
+          REPO='${{ github.repository }}'
+          echo "Queueing PR #$PR_NUMBER on $REPO"
+          gh pr merge "$PR_NUMBER" --repo "$REPO"
