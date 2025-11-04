@@ -30,4 +30,4 @@ jobs:
           PR_NUMBER='${{ github.event.pull_request.number }}'
           REPO='${{ github.repository }}'
           echo "Queueing PR #$PR_NUMBER on $REPO"
-          gh pr merge "$PR_NUMBER" --merge --repo "$REPO"
+          gh pr merge "$PR_NUMBER" --repo "$REPO"
