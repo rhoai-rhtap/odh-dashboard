@@ -18,7 +18,7 @@ jobs:
         id: wait_for_status
         uses: fountainhead/action-wait-for-check@v1.2.0
         with:
-          checkName: "Value Scan / Scan Files (pull_request)"
+          checkName: "Scan Files"
           ref: ${{ github.event.pull_request.head.sha }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
