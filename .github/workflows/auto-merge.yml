@@ -1,0 +1,46 @@
+name: Auto Add to Merge Queue
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  auto_add_to_queue:
+    runs-on: ubuntu-latest
+    
+    if: github.event.pull_request.draft == false && github.event.pull_request.state == 'open'
+    
+    permissions:
+      contents: read
+      pull-requests: write
+      statuses: read
+    
+    steps:
+      - name: Wait for commit statuses
+        uses: WyriHaximus/github-action-wait-for-status@v1.8
+        id: wait_for_status
+        with:
+          token: ${{ secrets.TOKEN }}
+          
+          checkName: |
+            Value Scan / Scan Files (pull_request)
+            
+      - name: Configure GitHub CLI
+        uses: actions/setup-gh@v1
+        with:
+          version: latest
+          
+      - name: Auto Merge (Add to Queue)
+        if: steps.wait_for_status.outputs.status == 'success'
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          REPO=${{ github.repository }}
+          
+          echo "Authenticating GitHub CLI"
+          echo "${{ secrets.TOKEN }}" | gh auth login --with-token
+          
+          echo "Attempting to add PR #${PR_NUMBER} to the Merge Queue on ${REPO_SLUG}..."
+          
+          gh pr merge $PR_NUMBER --merge-when-ready --repo $REPO
+          
+          echo "PR #${PR_NUMBER} successfully queued for merge when ready."
