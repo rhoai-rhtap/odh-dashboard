@@ -12,17 +12,15 @@ jobs:
       contents: read
       pull-requests: write
       statuses: read
-    env:
-      GH_TOKEN: ${{ secrets.TOKEN }}
 
     steps:
       - name: Wait for commit statuses
         id: wait_for_status
-        uses: WyriHaximus/github-action-wait-for-status@v1.8
+        uses: fountainhead/wait-for-check@v1.2.0
         with:
+          checkName: "Value Scan / Scan Files (pull_request)"
+          ref: ${{ github.event.pull_request.head.sha }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          checkName: |
-            Value Scan / Scan Files (pull_request)
 
       - name: Add to Merge Queue
         if: ${{ steps.wait_for_status.outputs.status == 'success' }}
