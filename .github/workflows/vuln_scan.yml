@@ -18,14 +18,14 @@ jobs:
           scan-ref: '.'
           trivy-config: .github/trivy.yaml
 
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: 'scan_result.sarif'
+      # - name: Upload Trivy scan results to GitHub Security tab
+      #   uses: github/codeql-action/upload-sarif@v2
+      #   with:
+      #     sarif_file: 'scan_result.sarif'
 
-      - name: Archive scan results to GitHub
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivyResult
-          path: 'scan_result.sarif'
-          if-no-files-found: error
+      # - name: Archive scan results to GitHub
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: trivyResult
+      #     path: 'scan_result.sarif'
+      #     if-no-files-found: error
