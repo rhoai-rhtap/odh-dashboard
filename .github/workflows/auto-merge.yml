@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Wait for commit statuses
         id: wait_for_status
-        uses: fountainhead/wait-for-check@v1.2.0
+        uses: fountainhead/action-wait-for-check@v1.2.0
         with:
           checkName: "Value Scan / Scan Files (pull_request)"
           ref: ${{ github.event.pull_request.head.sha }}
