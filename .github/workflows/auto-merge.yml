@@ -23,7 +23,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Add to Merge Queue
-        if: ${{ steps.wait_for_status.outputs.status == 'success' }}
+        if: ${{ steps.wait_for_commit_statuses.outputs.status == 'success' }}
         run: |
           PR_NUMBER='${{ github.event.pull_request.number }}'
           REPO='${{ github.repository }}'
