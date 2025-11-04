@@ -50,6 +50,6 @@
     "dotenv": "^8.2.0",
     "dotenv-expand": "^5.1.0",
     "npm-run-all2": "^5.0.0",
-    "prettier": "^2.2.1"
+    "prettier": "^3.0.0"
   }
 }
